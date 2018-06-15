@@ -14,7 +14,7 @@ services:
     ports:
       - "7777:7777"
     environment:
-      - DEBUG=True
+      - DEBUG=1
       - HOST=0.0.0.0
       - PORT=7777
       - OIDC_DOMAIN=oidc_domain_change_me
