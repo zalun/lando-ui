@@ -3,11 +3,13 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 import logging
 
-from flask import Blueprint, current_app, render_template, redirect, session
+from flask import (Blueprint, current_app, render_template, redirect, session)
 
 from landoui.app import oidc
 from landoui.forms import RevisionForm
-from landoui.helpers import is_user_authenticated, set_last_local_referrer
+from landoui.helpers import (
+    get_phabricator_api_token, is_user_authenticated, set_last_local_referrer
+)
 from landoui.landoapiclient import LandoAPIClient, LandingSubmissionError
 
 logger = logging.getLogger(__name__)
@@ -32,7 +34,7 @@ def revisions_handler(revision_id, diff_id=None):
 def _revisions_handler(revision_id, diff_id=None):
     landoapi = LandoAPIClient(
         landoapi_url=current_app.config['LANDO_API_URL'],
-        phabricator_api_token=None,
+        phabricator_api_token=get_phabricator_api_token(),
         auth0_access_token=session.get('access_token')
     )
 

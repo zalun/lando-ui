@@ -68,9 +68,21 @@
         <button class="Navbar-modalCancel delete"></button>
       </header>
       <section class="modal-card-body">
-        This modal will later be used to implement the Phabricator
-        privileged mode workflow and also as a settings window for things
-        like customizing the user's timezone.
+        {% if request.cookies['phabricator-api-token'] %}
+          {# Give front-end an information that the cookie exists #}
+          <span class="phabricator-api-token-set"></span>
+        {% endif %}
+        <form class="userSettingsForm">
+          {{ settings_form.phab_api_token.label() }} |
+          {{ settings_form.reset_phab_api_token.label() }}:
+          {{ settings_form.reset_phab_api_token(class_='checkbox') }}
+          {{ settings_form.phab_api_token(size=32, maxlength=32, minlength=32, class_='input') }}
+          {{ settings_form.csrf_token() }}
+          <ul id="phab_api_token_errors"></ul>
+          <ul id="form_errors"></ul>
+        </form>
+        <!-- TODO Big explanation of consequences of holding the key in a text file -->
+        <p>Please do not store your API key anywhere but on the Phabricator site.</p>
       </section>
       <footer class="modal-card-foot">
         <a class="Navbar-modalSubmit button is-success">Save changes</a>

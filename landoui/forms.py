@@ -2,8 +2,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 from flask_wtf import FlaskForm
-from wtforms import HiddenField
-from wtforms.validators import InputRequired, Regexp
+from wtforms import BooleanField, HiddenField, StringField
+from wtforms.validators import InputRequired, optional, Regexp
 
 
 class RevisionForm(FlaskForm):
@@ -15,3 +15,15 @@ class RevisionForm(FlaskForm):
         ]
     )
     confirmation_token = HiddenField('confirmation_token')
+
+
+class UserSettingsForm(FlaskForm):
+    """Form used to provide the Phabricator API Token."""
+    phab_api_token = StringField(
+        'Phabricator API Token',
+        validators=[
+            optional(),
+            Regexp('^api-[a-z0-9]{28}$', message='Invalid API Token format')
+        ]
+    )
+    reset_phab_api_token = BooleanField('Delete', default="")

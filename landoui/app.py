@@ -14,6 +14,7 @@ from flask_talisman import Talisman
 from webassets.loaders import YAMLLoader
 
 from landoui import auth, errorhandlers
+from landoui.context_processors import user_settings_processor
 from landoui.helpers import str2bool
 from landoui.logging import log_config_change, MozLogFormatter
 from landoui.sentry import initialize_sentry
@@ -125,6 +126,9 @@ def create_app(
             )
         )
         assets.register(loader.load_bundles())
+
+    # Add user settings form to the template context.
+    app.context_processor(user_settings_processor)
 
     return app
 

@@ -7,6 +7,7 @@ import os
 from flask import (
     Blueprint,
     current_app,
+    jsonify,
     redirect,
     render_template,
     session,
@@ -14,6 +15,7 @@ from flask import (
 
 from landoui.app import oidc
 from landoui.errorhandlers import UIError
+from landoui.forms import UserSettingsForm
 from landoui.helpers import set_last_local_referrer, is_user_authenticated
 
 logger = logging.getLogger(__name__)
@@ -58,6 +60,40 @@ def logout():
     )
 
     return redirect(logout_url, code=302)
+
+
+@pages.route('/settings', methods=['POST'])
+@oidc.oidc_auth
+def settings():
+    if not is_user_authenticated():
+        # Accessing it unauthenticated from UI is protected by CSP
+        return jsonify(
+            dict(
+                success=False,
+                errors=dict(form_errors=['User is not authenticated'])
+            )
+        )
+
+    form = UserSettingsForm()
+    if not form.validate_on_submit():
+        return jsonify(dict(success=False, errors=form.errors))
+
+    is_api_token_set = (
+        form.phab_api_token.data and not form.reset_phab_api_token.data
+    )
+    response = jsonify(dict(success=True, phab_api_token_set=is_api_token_set))
+    if form.phab_api_token.data:
+        response.set_cookie(
+            'phabricator-api-token',
+            value=form.phab_api_token.data,
+            secure=current_app.config['USE_HTTPS'],
+            httponly=True
+        )
+
+    if form.reset_phab_api_token.data:
+        response.set_cookie('phabricator-api-token')
+
+    return response
 
 
 @oidc.error_view
